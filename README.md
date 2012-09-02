@@ -21,7 +21,7 @@ struct hw_module_methods_t;
 struct hw_device_t;
 
 结构体hw_device_t表示硬件设备，存储了各种硬件设备的公共属性和方法
-—————————————————————————————————————————————————————————————
+
 /**
  * Every device data structure must begin with hw_device_t
  * followed by module specific public methods and attributes.
@@ -43,10 +43,10 @@ typedef struct hw_device_t {
     int (*close)(struct hw_device_t* device);
 
 } hw_device_t;
-————————————————————————————————————————————————————
+
 如果需要移植或者添加新硬件，那么都需要使用该结构体进行注册，其中的tag必须初始化。
 结构体hw_module_t在进行加载的时候用于判断属于哪一个module，其代码定义如下：
-————————————————————————————————————————————————————————————
+
 /**
  * Every hardware module must have a data structure named HAL_MODULE_INFO_SYM
  * and the fields of this data structure must begin with hw_module_t
@@ -81,15 +81,16 @@ typedef struct hw_module_t {
     uint32_t reserved[32-7];
 
 } hw_module_t;
-——————————————————————————————————————————————————————————————
-结构体hw_module_methods_t用于定义操作设备的方法operations,这里只定义了一定打开设备的方法open，其代码定义如下：
+
+结构体hw_module_methods_t用于定义操作设备的方法operations,这里只定义了一定打开设备的方法open，
+其代码定义如下：
 typedef struct hw_module_methods_t {
     /** Open a specific device */
     int (*open)(const struct hw_module_t* module, const char* id,
             struct hw_device_t** device);
 
 } hw_module_methods_t;
-————————————————————————————————————————————————————————————
+——————————————————————————
 如果要执行打开设备等操作可以使用“module->methods->open(module,
   	LED_HARDWARE_MODULE_ID, (struct hw_device_t**)device);”
 该方法在framework的JNI层代码中：
@@ -101,7 +102,7 @@ static inline int led_control_open(const struct hw_module_t* module,
 		LED_HARDWARE_MODULE_ID, (struct hw_device_t**)device);
 	//这个过程非常重要JNI通过该ID找到对应的Stub
 }
-————————————————————————————————————————————————————————
+—————————————————————
 下面继续分析如何获得HAL stub
 当加载module时，可以调用hardware.c中的hw_get_module函数获得HAL，其实现代码如下：
 int hw_get_module(const char *id, const struct hw_module_t **module) 
@@ -147,7 +148,7 @@ int hw_get_module(const char *id, const struct hw_module_t **module)
 
     return status;
 }
-————————————————————————————————————————————————————
+——————————————————————————
 在hw_get_module函数中，Android系统首先在系统属性中查找硬件定义，然后通过改函数的参数id和查找到的模块的路径（path）加载
 相应硬件HAL的特定模块so库文件。如果在系统属性中未定义硬件属性，则使用默认硬件HAL对于模块的so库文件。其中property_get
 函数将根据定义的硬件属性配置查找对应的模块及其路径，然后调用load函数加载。
